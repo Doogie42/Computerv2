@@ -11,19 +11,20 @@ import re
 
 
 class TokenException(Exception):
-    def __init__(self,msg):
-        self.msg=msg
+    def __init__(self, msg):
+        self.msg = msg
+
 
 class Token(ABC):
-    def __init__(self, value : str) -> None:
+    def __init__(self, value: str = None) -> None:
         super().__init__()
         self.value = value
-    
+
     def __eq__(self, value: object) -> bool:
         return self.get_value() == value.get_value() and\
-            type(self) == type(value)
-    
-    def get_value(self) -> any:
+            type(self) is type(value)
+
+    def get_value(self) -> str:
         return self.value
 
     def get_type(self) -> type:
@@ -32,37 +33,46 @@ class Token(ABC):
     def __str__(self) -> str:
         return str(self.value)
 
-
     def __repr__(self) -> str:
         return f"{type(self).__name__} {self.value}"
+
 
 class Rational(Token):
     pass
 
+
 class Imaginary(Token):
     pass
-        
+
+
 class Variable(Token):
     pass
-        
+
+
 class Operator(Token):
     pass
 
+
 class Parenthesis(Token):
     pass
+
+
 class Function(Token):
     pass
+
+
 class Matrix(Token):
     pass
 
+
 def tokenize(cmd: str) -> list[Token]:
     rules = {
-         "\\b\\d+\\.\\d+[i]\\b": Imaginary,# capture decimal
-         "\\b\\d*[i]\\b": Imaginary, # capture whole
-         "\\b\\d+(\.\d+)?\\b": Rational,# capture decimal
+         "\\b\\d+\\.\\d+[i]\\b": Imaginary,  # capture decimal
+         "\\b\\d*[i]\\b": Imaginary,  # capture whole
+         "\\b\\d+(\\.\\d+)?\\b": Rational,  # capture decimal
          "\\b(?!i\\b)[a-zA-Z]+\\b": Variable,
          "[\\+\\-\\*\\/\\%\\=\\^]": Operator,
-         "\\(|\\)":Parenthesis,
+         "\\(|\\)": Parenthesis,
     }
 
     token_list = []
