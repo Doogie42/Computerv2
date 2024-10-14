@@ -1,5 +1,5 @@
 from Token import tokenize
-from Expression import Parser
+from Parser import Parser
 from Interpreter import Interpreter
 import unittest
 
