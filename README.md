@@ -13,3 +13,8 @@ python main.py
 cv2> (8 * 3) + 2 / 4 - 1 
 23.5
 ```
+
+## Tests
+```
+python -m unittest
+```

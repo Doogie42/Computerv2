@@ -1,4 +1,4 @@
-from Expression import Expression
+from computorv2.Expression import Expression
 
 
 class Interpreter():

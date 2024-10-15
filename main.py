@@ -1,7 +1,7 @@
-from input import read_input
-from Token import tokenize
-from Parser import Parser
-from Interpreter import Interpreter
+from computorv2.input import read_input
+from computorv2.Token import tokenize
+from computorv2.Parser import Parser
+from computorv2.Interpreter import Interpreter
 
 
 def main():

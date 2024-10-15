@@ -1,5 +1,5 @@
-from Token import Token, Operator, Rational, Parenthesis
-from Expression import Expression, Literal, Factor, Term
+from computorv2.Token import Token, Operator, Rational, Parenthesis
+from computorv2.Expression import Expression, Literal, Factor, Term
 
 
 class Parser():
@@ -72,3 +72,4 @@ class Parser():
             expression = self.parse()
             self.advance()
             return expression
+        # raise Exception("Invalid token")

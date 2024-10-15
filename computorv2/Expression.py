@@ -1,5 +1,5 @@
 from abc import ABC
-from Token import Token, Rational, Operator
+from computorv2.Token import Token, Rational, Operator
 
 # term -> factor (- + ) factor
 # factor -> unary (* /) unary

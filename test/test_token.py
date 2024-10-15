@@ -1,5 +1,5 @@
-from Token import tokenize, Rational, Imaginary, Variable, Operator, \
-                  Parenthesis, TokenException
+from computorv2.Token import tokenize, Rational, Imaginary, Variable, \
+                                Operator, Parenthesis, TokenException
 import unittest
 
 
