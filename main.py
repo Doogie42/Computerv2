@@ -28,7 +28,7 @@ def main():
             print(f"Interpret exception {e}")
             continue
 
-        print(f"RESULT {result}")
+        print(f"{result}")
 
 
 if __name__ == "__main__":

@@ -118,6 +118,9 @@ class Rational(Number):
     def get_imaginary_coefficient(self) -> str:
         return ""
 
+    def __str__(self) -> str:
+        return f"{self.rational_expr:g}"
+
 
 class Imaginary(Number):
     def __init__(self,
@@ -148,8 +151,8 @@ class Imaginary(Number):
             return super().__repr__()
         else:
             sign = " + " if self.imaginary_expr >= 0 else " "
-            return str(self.rational_expr) + sign\
-                + str(self.imaginary_expr)\
+            return f"{self.rational_expr:g}" + sign\
+                + f"{self.imaginary_expr:g}"\
                 + " * i"
 
     def __eq__(self, value: object) -> bool:
