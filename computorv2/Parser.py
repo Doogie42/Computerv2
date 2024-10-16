@@ -1,4 +1,4 @@
-from computorv2.Token import Token, Operator, Rational, Parenthesis
+from computorv2.Token import Token, Operator, Rational, Parenthesis, Imaginary
 from computorv2.Expression import Expression, Literal, Factor, Term
 
 
@@ -18,8 +18,11 @@ class Parser():
             raise ParserException("Expression ended prematurly")
         return self.token_list[self.current]
 
-    def match_type(self, token: Token) -> bool:
-        return self.current_token().get_type() == type(token)
+    def match_type(self, token_type_list: list[Token]) -> bool:
+        for token in token_type_list:
+            if self.current_token().get_type() == token.get_type():
+                return True
+        return False
 
     def match(self, token: Token) -> bool:
         return self.current_token() == token
@@ -67,23 +70,23 @@ class Parser():
     def term(self) -> list[Expression]:
         left = self.factor()
         while self.match_list([Operator("+"), Operator("-")]):
-            operator = Operator(self.advance(Operator))
+            operator = self.advance(Operator)
             right = self.factor()
             left = Term(left, operator, right)
         return left
 
     def factor(self) -> list[Expression]:
         left = self.literal()
-
         while self.match_list([Operator("*"), Operator("/")]):
-            operator = Operator(self.advance(Operator))
+            operator = self.advance(Operator)
+
             right = self.literal()
             left = Factor(left, operator, right)
 
         return left
 
     def literal(self):
-        if (self.match_type(Rational())):
+        if (self.match_type([Rational(), Imaginary()])):
             return Literal(self.advance())
 
         if (self.match(Parenthesis("("))):

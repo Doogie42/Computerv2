@@ -1,7 +1,10 @@
 from computorv2.Token import tokenize
 from computorv2.Parser import Parser
 from computorv2.Interpreter import Interpreter
+from computorv2.Token import Imaginary, Rational
 import unittest
+
+# result checked with https://www.wolframalpha.com/
 
 
 class TestInterpreter(unittest.TestCase):
@@ -14,32 +17,100 @@ class TestInterpreter(unittest.TestCase):
     def test_addition(self):
         ast = self.my_set_up("5 + 2")
         interpreter = Interpreter(ast)
-        self.assertEqual("7", interpreter.interpret())
+        self.assertEqual(Rational("7.0"), interpreter.interpret_ret_token())
 
     def test_subtraction(self):
         ast = self.my_set_up("44 - 2")
         interpreter = Interpreter(ast)
-        self.assertEqual("42", interpreter.interpret())
+        self.assertEqual(Rational("42.0"), interpreter.interpret_ret_token())
 
     def test_multiplication(self):
         ast = self.my_set_up("21 * 2")
         interpreter = Interpreter(ast)
-        self.assertEqual("42", interpreter.interpret())
+        self.assertEqual(Rational("42.0"), interpreter.interpret_ret_token())
 
     def test_division(self):
         ast = self.my_set_up("84 / 2")
         interpreter = Interpreter(ast)
-        self.assertEqual("42.0", interpreter.interpret())
+        self.assertEqual(Rational("42.0"), interpreter.interpret_ret_token())
 
     def test_precedence(self):
         ast = self.my_set_up("5 + 2 * 21")
         interpreter = Interpreter(ast)
-        self.assertEqual("47", interpreter.interpret())
+        self.assertEqual(Rational("47.0"), interpreter.interpret_ret_token())
 
     def test_parenthesis(self):
         ast = self.my_set_up("(5 + 16) * 2")
         interpreter = Interpreter(ast)
-        self.assertEqual("42", interpreter.interpret())
+        self.assertEqual(Rational("42.0"), interpreter.interpret_ret_token())
+
+
+class TestInterpreterImaginary(unittest.TestCase):
+    def my_set_up(self, cmd: str):
+        token_list = tokenize(cmd)
+        parser = Parser(token_list)
+        ast = parser.generate()
+        return ast
+
+    def test_addition(self):
+        ast = self.my_set_up("5 + 2i")
+        interpreter = Interpreter(ast)
+        self.assertEqual(Imaginary(rational=5, imaginary=2),
+                         interpreter.interpret_ret_token())
+
+    def test_subtraction(self):
+        ast = self.my_set_up("44 - i")
+        interpreter = Interpreter(ast)
+        self.assertEqual(Imaginary(rational=44, imaginary=-1),
+                         interpreter.interpret_ret_token())
+
+    def test_parentesis(self):
+        ast = self.my_set_up("1 - (5 + i) + i + i")
+        interpreter = Interpreter(ast)
+        self.assertEqual(Imaginary(rational=-4, imaginary=1),
+                         interpreter.interpret_ret_token())
+
+    def test_multiplication(self):
+        ast = self.my_set_up("21 * 2 * i")
+        interpreter = Interpreter(ast)
+        self.assertEqual(Imaginary(rational=0, imaginary=42),
+                         interpreter.interpret_ret_token())
+
+    def test_division(self):
+        ast = self.my_set_up("84 / 2 / i")
+        interpreter = Interpreter(ast)
+        self.assertEqual(Imaginary(rational=0, imaginary=-42),
+                         interpreter.interpret_ret_token())
+
+    def test_precedence(self):
+        ast = self.my_set_up("5 + 2 * 21 * i")
+        interpreter = Interpreter(ast)
+        self.assertEqual(Imaginary(rational=5, imaginary=42),
+                         interpreter.interpret_ret_token())
+
+    def test_multi_1(self):
+        ast = self.my_set_up("5 + 2i + 3i - (5 / i) + 5 * i")
+        interpreter = Interpreter(ast)
+        self.assertEqual(Imaginary(rational=5, imaginary=15),
+                         interpreter.interpret_ret_token())
+
+    def test_multi_2(self):
+        ast = self.my_set_up("(4 + i) / (8 + i)")
+        interpreter = Interpreter(ast)
+        self.assertEqual(Imaginary(rational=0.507, imaginary=0.061),
+                         interpreter.interpret_ret_token())
+
+    def test_multi_3(self):
+        ast = self.my_set_up("(4 + i) * (8 + i)")
+        interpreter = Interpreter(ast)
+        self.assertEqual(Imaginary(rational=31, imaginary=12),
+                         interpreter.interpret_ret_token())
+
+    def test_multi_4(self):
+        ast = self.my_set_up("(4 + i) * (8 + i) * (4 + i) / (8 + i)")
+        interpreter = Interpreter(ast)
+        self.assertEqual(Imaginary(rational=15, imaginary=8),
+                         interpreter.interpret_ret_token())
 
 
 if __name__ == '__main__':

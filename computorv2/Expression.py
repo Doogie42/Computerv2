@@ -1,10 +1,15 @@
 from abc import ABC
-from computorv2.Token import Token, Rational, Operator
+from computorv2.Token import Token, Operator
 
 # term -> factor (- + ) factor
 # factor -> unary (* /) unary
-# unary -> % | ^ | primary
+# unary -> % | ^ | literal
 # Literal -> Number | variable | matrix | ( expression )
+
+
+class InterpretException(Exception):
+    def __init__(self, msg: str) -> None:
+        self.msg = msg
 
 
 class Expression(ABC):
@@ -21,8 +26,26 @@ class Literal(Expression):
         super().__init__()
         self.value = value
 
+    def __str__(self) -> str:
+        return self.value.__str__()
+
     def __repr__(self) -> str:
         return self.value.get_value()
+
+    def get_token(self) -> Token:
+        return self.value
+
+    def __add__(self, rhs):
+        return Literal(self.get_token() + rhs.get_token())
+
+    def __sub__(self, rhs):
+        return Literal(self.get_token() - rhs.get_token())
+
+    def __mul__(self, rhs):
+        return Literal(self.get_token() * rhs.get_token())
+
+    def __truediv__(self, rhs):
+        return Literal(self.get_token() / rhs.get_token())
 
 
 # % ^
@@ -53,19 +76,19 @@ class Binary(Expression):
         elif type(self.right) is Term:
             self.right = self.right.evaluate()
         # TODO: Implement the evaluation of the expression
-        result = eval(f"{self.left.get_value()} {self.operator.get_value()}\
-                      {self.right.get_value()}")
-        return Rational(str(result))
-
-
-# =
-class Equality(Expression):
-    def __init__(self, value: Token) -> None:
-        self.value = value.get_value()
-
-    def __repr__(self) -> str:
-        return self.value
-    pass
+        match self.operator:
+            case Operator(value="+"):
+                return self.left + self.right
+            case Operator(value="-"):
+                return self.left - self.right
+            case Operator(value="*"):
+                return self.left * self.right
+            case Operator(value="/"):
+                try:
+                    return self.left / self.right
+                except ZeroDivisionError:
+                    raise InterpretException("Division by 0")
+            case _: raise InterpretException("Unknown operator")
 
 
 # * /
