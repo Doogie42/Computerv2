@@ -1,5 +1,11 @@
-from computorv2.Token import Token, Operator, Rational, Parenthesis, Imaginary
-from computorv2.Expression import Expression, Literal, Factor, Term
+from computorv2.Token import Token, Operator, Rational, Parenthesis
+from computorv2.Token import Imaginary, UnaryOperator
+from computorv2.Expression import Expression, Literal, Factor, Term, Unary
+
+# term -> factor (- + ) factor
+# factor -> unary (* /) unary
+# unary -> % | ^ | literal
+# Literal -> Number | variable | matrix | ( expression )
 
 
 class ParserException(Exception):
@@ -15,7 +21,7 @@ class Parser():
 
     def current_token(self) -> Token:
         if self.eotoken():
-            raise ParserException("Expression ended prematurly")
+            return Token("EOF")
         return self.token_list[self.current]
 
     def match_type(self, token_type_list: list[Token]) -> bool:
@@ -36,7 +42,6 @@ class Parser():
         for token in token_list:
             if self.current_token() == token:
                 return True
-        self.current_token() in token_list
         return False
 
     def match_consume(self, token: list[Token]) -> None:
@@ -60,7 +65,7 @@ class Parser():
         result = self.parse()
         if not self.eotoken():
             raise ParserException(f"Error couldn't consume whole expression"
-                                  f"last token was "
+                                  f" last token was "
                                   f"{self.current_token()}")
         return result
 
@@ -76,13 +81,21 @@ class Parser():
         return left
 
     def factor(self) -> list[Expression]:
-        left = self.literal()
+        left = self.unary()
         while self.match_list([Operator("*"), Operator("/")]):
             operator = self.advance(Operator)
-
-            right = self.literal()
+            right = self.unary()
             left = Factor(left, operator, right)
+        return left
 
+    def unary(self) -> Expression:
+        left = self.literal()
+
+        while self.match(UnaryOperator("^")):
+            unary_operator = self.advance(UnaryOperator)
+            # here we will do like python => right to left
+            right = self.unary()
+            left = Unary(left=left, unary=unary_operator, right=right)
         return left
 
     def literal(self):

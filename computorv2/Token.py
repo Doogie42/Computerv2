@@ -1,5 +1,7 @@
 from abc import ABC
 import re
+import math
+from computorv2.Exception import InterpretException
 
 # literal : varA
 # number : 4.34325 5i
@@ -103,6 +105,27 @@ class Number(Token):
                 return Rational(str(rational_part))
             return Imaginary(imaginary=imaginary_part,
                              rational=rational_part)
+    # (a+ib)^N=r^N(cos(Nθ)+isin(Nθ))
+    # and r = sqrt(a^2 + b ^ 2) and θ = arctan(b / a)
+
+    def __pow__(self, rhs):
+        if isinstance(rhs, Imaginary):
+            raise InterpretException("Cannot use imaginary number in power")
+        if isinstance(self, Rational):
+            return Rational(str(self.rational_expr ** rhs.rational_expr))
+        else:
+            N = rhs.rational_expr
+            if N == 0:
+                return Rational("1")
+            theta = math.atan(self.imaginary_expr / self.rational_expr)
+            r = math.sqrt(self.imaginary_expr ** 2 + self.rational_expr ** 2)
+            rational = r ** N * (math.cos(N * theta))
+            imaginary = r ** N * (math.sin(N * theta))
+            if (imaginary == 0):
+                return Rational(str(rational))
+            else:
+                return Imaginary(rational=rational,
+                                 imaginary=imaginary)
 
 
 class Rational(Number):
@@ -182,14 +205,19 @@ class Matrix(Token):
     pass
 
 
+class UnaryOperator(Token):
+    pass
+
+
 def tokenize(cmd: str) -> list[Token]:
     rules = {
          "\\b\\d+\\.\\d+[i]\\b": Imaginary,  # capture decimal
          "\\b\\d*[i]\\b": Imaginary,  # capture whole
          "\\b\\d+(\\.\\d+)?\\b": Rational,  # capture decimal
          "\\b(?!i\\b)[a-zA-Z]+\\b": Variable,
-         "[\\+\\-\\*\\/\\%\\=\\^]": Operator,
+         "[\\+\\-\\*\\/\\=]": Operator,
          "\\(|\\)": Parenthesis,
+         "\\^": UnaryOperator
     }
 
     token_list = []

@@ -1,5 +1,6 @@
 from computorv2.Token import tokenize, Rational, Imaginary, Variable, \
-                                Operator, Parenthesis, TokenException
+                                Operator, Parenthesis, TokenException, \
+                                UnaryOperator
 import unittest
 
 
@@ -84,14 +85,23 @@ class TestOperator(unittest.TestCase):
         self.assertListEqual([Operator("+")], token_list)
 
     def test_operator_list(self):
-        token_list = tokenize("+ - * / % = ^")
+        token_list = tokenize("+ - * /")
         self.assertListEqual([Operator("+"), Operator("-"),
-                              Operator("*"), Operator("/"),
-                              Operator("%"), Operator("="),
-                              Operator("^")], token_list)
+                              Operator("*"), Operator("/")], token_list)
 
     def test_operator_no_space(self):
         self.assertEqual([Operator("*"), Operator("*")], tokenize("**"))
+
+
+class TestPower(unittest.TestCase):
+    def test_power(self):
+        token_list = tokenize("^")
+        self.assertListEqual([UnaryOperator("^")], token_list)
+
+    def test_power_numbe(self):
+        token_list = tokenize("2 ^ 2")
+        self.assertListEqual([Rational("2"), UnaryOperator("^"),
+                              Rational("2")], token_list)
 
 
 class TestMixed(unittest.TestCase):

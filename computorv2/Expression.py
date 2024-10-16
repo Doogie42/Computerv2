@@ -1,15 +1,6 @@
 from abc import ABC
-from computorv2.Token import Token, Operator
-
-# term -> factor (- + ) factor
-# factor -> unary (* /) unary
-# unary -> % | ^ | literal
-# Literal -> Number | variable | matrix | ( expression )
-
-
-class InterpretException(Exception):
-    def __init__(self, msg: str) -> None:
-        self.msg = msg
+from computorv2.Token import Token, Operator, UnaryOperator, Imaginary
+from computorv2.Exception import InterpretException
 
 
 class Expression(ABC):
@@ -47,10 +38,28 @@ class Literal(Expression):
     def __truediv__(self, rhs):
         return Literal(self.get_token() / rhs.get_token())
 
+    def __pow__(self, rhs):
+        return Literal(self.get_token() ** rhs.get_token())
+
 
 # % ^
 class Unary(Expression):
-    pass
+    def __init__(self,
+                 left: Expression,
+                 unary: UnaryOperator,
+                 right: Expression) -> None:
+        self.left = left
+        self.right = right
+        self.unary = unary
+
+    def evaluate(self) -> Literal:
+        if type(self.right) is not Literal:
+            self.right = self.right.evaluate()
+        if type(self.left) is not Literal:
+            self.left = self.left.evaluate()
+        if isinstance(self.right, Imaginary):
+            raise InterpretException("Cannot use imaginary number in power")
+        return self.left ** self.right
 
 
 # + - * / =
@@ -67,15 +76,12 @@ class Binary(Expression):
         return f"left :\n{self.left} op {self.operator} right {self.right}\n"
 
     def evaluate(self) -> Literal:
-        if type(self.left) is Factor:
+        if type(self.left) is not Literal:
             self.left = self.left.evaluate()
-        elif type(self.left) is Term:
-            self.left = self.left.evaluate()
-        if type(self.right) is Factor:
+
+        if type(self.right) is not Literal:
             self.right = self.right.evaluate()
-        elif type(self.right) is Term:
-            self.right = self.right.evaluate()
-        # TODO: Implement the evaluation of the expression
+
         match self.operator:
             case Operator(value="+"):
                 return self.left + self.right
