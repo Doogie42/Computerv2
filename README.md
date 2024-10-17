@@ -28,9 +28,16 @@ cv2> school = 21 + 21
 42
 cv2> age = 12i + 12i
 24 * i
-cv2> listvariable
+cv2> total = school + age
+42 + 24 * i
+cv2> lv
+Variable list:
+*****************************
 school = 42
 age = 24 * i
+total = 42 + 24 * i
+*****************************
+
 ```
 
 ## Tests

@@ -39,3 +39,14 @@ class TestAssignement(unittest.TestCase):
         variable_dict = computor.get_variable_dict()
         self.assertDictEqual(variable_dict, {"a": Imaginary(rational=3,
                                                             imaginary=1)})
+
+    def test_assign_var(self):
+        computor = self.my_set_up("a = 2 + 2")
+        computor.run_cmd("b = a + 2i")
+        computor.run_cmd("c = a + b")
+        variable_dict = computor.get_variable_dict()
+        self.assertDictEqual(variable_dict, {
+            "a": Rational("4.0"),
+            "b": Imaginary(rational=4, imaginary=2),
+            "c": Imaginary(rational=8, imaginary=2)
+            })

@@ -30,10 +30,21 @@ class Computor():
     def run_builtin_cmd(self, cmd: str) -> str:
         builtin_list = BuiltinCmd.__subclasses__()
         for builtin in builtin_list:
-            if cmd.lower() == builtin.__name__.lower():
+            if cmd.lower() == builtin.__name__.lower() or\
+               cmd.lower() == builtin().get_short_name().lower():
                 b = builtin()
                 return b.execute(self)
         return ""
+
+    def replace_variable(self, token_list):
+        for i in range(len(token_list)):
+            if token_list[i].get_type() == TokenType.VARIABLE:
+                var_name = token_list[i].get_value()
+                if var_name in self.variable_dict:
+                    token_list[i] = self.variable_dict[var_name]
+                else:
+                    raise InterpretException(f"Unknown variable {var_name}")
+        return token_list
 
     def run_cmd(self, cmd: str) -> str:
         ret = self.run_builtin_cmd(cmd)
@@ -52,6 +63,7 @@ class Computor():
                 assign_mode = True
             else:
                 raise ParserException("Unknown equality")
+            token_list_to_parse = self.replace_variable(token_list_to_parse)
             parser = Parser(token_list_to_parse)
             ast = parser.generate()
             interpreter = Interpreter(ast)
@@ -67,8 +79,8 @@ class Computor():
             return f"Parser exception {e}"
         except InterpretException as e:
             return f"Interpret exception {e}"
-        except Exception as e:
-            print(f"ERROR FATAL: unhandled exception got {e}")
-            print("Quitting")
-            exit(1)
+        # except Exception as e:
+        #     print(f"ERROR FATAL: unhandled exception got {e}")
+        #     print("Quitting")
+        #     exit(1)
         return result
