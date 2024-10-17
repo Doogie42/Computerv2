@@ -41,7 +41,7 @@ class Computor():
         new_token_list = []
         for i in range(len(token_list)):
             if token_list[i].get_type() == TokenType.VARIABLE:
-                var_name = token_list[i].get_value()
+                var_name = token_list[i].get_value().lower()
                 if var_name in self.variable_dict:
                     new_token_list.append(Parenthesis("("))
                     new_token_list.append(self.variable_dict[var_name])
@@ -78,7 +78,7 @@ class Computor():
             if assign_mode:
                 var_token = self.token_before_equal[0]
                 if var_token.get_type() == TokenType.VARIABLE:
-                    self.variable_dict[var_token.get_value()] = result
+                    self.variable_dict[var_token.get_value().lower()] = result
 
         except TokenException as e:
             return f"Token exception {e}"
