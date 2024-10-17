@@ -44,6 +44,9 @@ class Literal(Expression):
     def __mod__(self, rhs):
         return Literal(self.get_token() % rhs.get_token())
 
+    def evaluate(self):
+        return Literal(self.get_token())
+
 
 # % ^
 class Unary(Expression):
