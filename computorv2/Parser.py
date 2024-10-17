@@ -90,8 +90,7 @@ class Parser():
 
     def unary(self) -> Expression:
         left = self.literal()
-
-        while self.match(UnaryOperator("^")):
+        while self.match_list([UnaryOperator("^"), UnaryOperator("%")]):
             unary_operator = self.advance(UnaryOperator)
             # here we will do like python => right to left
             right = self.unary()

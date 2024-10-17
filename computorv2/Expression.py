@@ -41,6 +41,9 @@ class Literal(Expression):
     def __pow__(self, rhs):
         return Literal(self.get_token() ** rhs.get_token())
 
+    def __mod__(self, rhs):
+        return Literal(self.get_token() % rhs.get_token())
+
 
 # % ^
 class Unary(Expression):
@@ -57,9 +60,13 @@ class Unary(Expression):
             self.right = self.right.evaluate()
         if type(self.left) is not Literal:
             self.left = self.left.evaluate()
-        if isinstance(self.right, Imaginary):
-            raise InterpretException("Cannot use imaginary number in power")
-        return self.left ** self.right
+        if self.unary == UnaryOperator("^"):
+            if isinstance(self.right, Imaginary):
+                raise InterpretException(
+                    "Cannot use imaginary number in power")
+            return self.left ** self.right
+        elif self.unary == UnaryOperator("%"):
+            return self.left % self.right
 
 
 # + - * / =

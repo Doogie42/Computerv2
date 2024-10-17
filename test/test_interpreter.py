@@ -169,5 +169,44 @@ class TestInterpreterPower(unittest.TestCase):
         self.assertEqual(Rational("1"), interpreter.interpret_ret_token())
 
 
+class TestInterpreterMod(unittest.TestCase):
+    def my_set_up(self, cmd: str):
+        token_list = tokenize(cmd)
+        parser = Parser(token_list)
+        ast = parser.generate()
+        interpreter = Interpreter(ast)
+        cmd_python = cmd.replace("^", "**")
+        result = ""
+        try:
+            if "i" not in cmd:
+                result = str(float(eval(cmd_python)))
+        except Exception:
+            pass
+        return interpreter, result
+
+    def test_simple(self):
+        interpreter, result = self.my_set_up("5 % 2")
+        self.assertEqual(Rational(result),
+                         interpreter.interpret_ret_token())
+
+    def test_imaginary(self):
+        interpreter, _ = self.my_set_up("5 % (2 *i)")
+        self.assertRaises(InterpretException, interpreter.interpret_ret_token)
+
+    def test_mod_power(self):
+        interpreter, result = self.my_set_up("5 % 2 ^ 2")
+        self.assertEqual(Rational(result),
+                         interpreter.interpret_ret_token())
+
+    def test_mod_zero(self):
+        interpreter, _ = self.my_set_up("5 % 0")
+        self.assertRaises(InterpretException, interpreter.interpret_ret_token)
+
+    def test_parentesis(self):
+        interpreter, result = self.my_set_up("(5 + 2) % 2")
+        self.assertEqual(Rational(result),
+                         interpreter.interpret_ret_token())
+
+
 if __name__ == '__main__':
     unittest.main()

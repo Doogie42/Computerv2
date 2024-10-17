@@ -127,6 +127,14 @@ class Number(Token):
                 return Imaginary(rational=rational,
                                  imaginary=imaginary)
 
+    def __mod__(self, rhs):
+        if isinstance(self, Imaginary) or\
+                isinstance(rhs, Imaginary):
+            raise InterpretException("Cannot use imaginary number in modulo")
+        if rhs.rational_expr == 0:
+            raise InterpretException("Division by zero")
+        return Rational(str(self.rational_expr % rhs.rational_expr))
+
 
 class Rational(Number):
     def __init__(self, value: str = None) -> None:
@@ -217,7 +225,7 @@ def tokenize(cmd: str) -> list[Token]:
          "\\b(?!i\\b)[a-zA-Z]+\\b": Variable,
          "[\\+\\-\\*\\/\\=]": Operator,
          "\\(|\\)": Parenthesis,
-         "\\^": UnaryOperator
+         "\\^|\\%": UnaryOperator
     }
 
     token_list = []
