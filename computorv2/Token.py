@@ -2,7 +2,7 @@ from abc import ABC
 import re
 import math
 from computorv2.Exception import InterpretException
-
+import enum
 # literal : varA
 # number : 4.34325 5i
 # operator : * / = + - ** % ^
@@ -10,6 +10,17 @@ from computorv2.Exception import InterpretException
 # function : func(x)
 # matrixes : [[1, 2]; [2, 4]]
 # = ?
+
+
+class TokenType(enum.Enum):
+    RATIONAL = 1
+    IMAGINARY = 2
+    OPERATOR = 3
+    PARENTHESIS = 4
+    FUNCTION = 5
+    MATRIX = 6
+    UNARY_OPERATOR = 7
+    VARIABLE = 8
 
 
 class TokenException(Exception):
@@ -20,19 +31,20 @@ class TokenException(Exception):
 class Token(ABC):
     def __init__(self, value: str = None) -> None:
         super().__init__()
+        self.token_type = None
         if value and not isinstance(value, str):
             raise Exception("Wrong type")
         self.value = value
 
     def __eq__(self, value: object) -> bool:
         return self.get_value() == value.get_value() and\
-            type(self) is type(value)
+            self.get_type() == value.get_type()
 
     def get_value(self) -> str:
         return self.value
 
-    def get_type(self) -> type:
-        return type(self)
+    def get_type(self) -> TokenType:
+        return self.token_type
 
     def __str__(self) -> str:
         return str(self.value)
@@ -142,6 +154,7 @@ class Rational(Number):
         if (value):
             self.rational_expr = float(self.value)
             self.imaginary_expr = 0
+        self.token_type = TokenType.RATIONAL
 
     def get_rational_coefficient(self) -> str:
         return self.value
@@ -160,6 +173,8 @@ class Imaginary(Number):
                  imaginary: float = None) -> None:
         super().__init__(value)
         self.min_prec = 0.001
+        self.token_type = TokenType.IMAGINARY
+
         # when we initialize our Imaginary we only get i
         # later when we do operation we can have 5 + i or 5 * i
         if (value):
@@ -194,15 +209,21 @@ class Imaginary(Number):
 
 
 class Variable(Token):
-    pass
+    def __init__(self, value: str = None) -> None:
+        super().__init__(value)
+        self.token_type = TokenType.VARIABLE
 
 
 class Operator(Token):
-    pass
+    def __init__(self, value: str = None) -> None:
+        super().__init__(value)
+        self.token_type = TokenType.OPERATOR
 
 
 class Parenthesis(Token):
-    pass
+    def __init__(self, value: str = None) -> None:
+        super().__init__(value)
+        self.token_type = TokenType.PARENTHESIS
 
 
 class Function(Token):
@@ -214,14 +235,44 @@ class Matrix(Token):
 
 
 class UnaryOperator(Token):
+    def __init__(self, value: str = None) -> None:
+        super().__init__(value)
+        self.token_type = TokenType.UNARY_OPERATOR
     pass
+
+
+def add_mult_operator(token_list: list[Token]) -> list[Token]:
+    new_token_list = []
+    iterable = iter(token_list)
+    print(token_list)
+    for token in iterable:
+        new_token_list.append(token)
+        try:
+            next_token = next(iterable)
+        except StopIteration:
+            break
+        if (token.get_type() == TokenType.RATIONAL or
+            token.get_type() == TokenType.IMAGINARY)\
+            and\
+            (next_token.get_type() == TokenType.VARIABLE or
+             next_token.get_value() == "("):
+            new_token_list.append(Operator("*"))
+
+        if (token.get_type() == TokenType.VARIABLE or
+            token.get_value() == ")")\
+            and\
+            (next_token.get_type() == TokenType.RATIONAL or
+             next_token.get_type() == TokenType.IMAGINARY):
+            new_token_list.append(Operator("*"))
+        new_token_list.append(next_token)
+    return new_token_list
 
 
 def tokenize(cmd: str) -> list[Token]:
     rules = {
          "\\b\\d+\\.\\d+[i]\\b": Imaginary,  # capture decimal
          "\\b\\d*[i]\\b": Imaginary,  # capture whole
-         "\\b\\d+(\\.\\d+)?\\b": Rational,  # capture decimal
+         "\\b\\d+(\\.\\d+)?": Rational,  # capture decimal
          "\\b(?!i\\b)[a-zA-Z]+\\b": Variable,
          "[\\+\\-\\*\\/\\=]": Operator,
          "\\(|\\)": Parenthesis,
@@ -243,4 +294,5 @@ def tokenize(cmd: str) -> list[Token]:
         if len(cmd) == 0 or cmd.isspace():
             break
         raise TokenException(f"unkown token {cmd.split()[0]}")
+    token_list = add_mult_operator(token_list)
     return token_list

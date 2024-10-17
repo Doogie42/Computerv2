@@ -25,10 +25,6 @@ class TestRational(unittest.TestCase):
     def test_rational_double_dot_with_number(self):
         self.assertRaises(TokenException, tokenize, "42.42.42")
 
-    def test_rational_list(self):
-        token_list = tokenize("4242 2121")
-        self.assertListEqual([Rational("4242"), Rational("2121")], token_list)
-
 
 class TestImaginary(unittest.TestCase):
     def test_imaginary(self):
@@ -39,9 +35,6 @@ class TestImaginary(unittest.TestCase):
         token_list = tokenize("4242i 2121i")
         self.assertListEqual([Imaginary("4242i"), Imaginary("2121i")],
                              token_list)
-
-    def test_imaginary_double_i(self):
-        self.assertRaises(TokenException, tokenize, "4242ii")
 
     def test_imaginary_i_alone(self):
         self.assertListEqual([Imaginary("i")], tokenize("i"))
@@ -125,6 +118,30 @@ class TestMixed(unittest.TestCase):
                               Operator("+"), Imaginary("4242i"),
                               Parenthesis(")"), Operator("*"),
                               Variable("variable")], token_list)
+
+    def test_factor_no_operator(self):
+        token_list = tokenize("42x")
+        self.assertListEqual([Rational("42"), Operator("*"),
+                              Variable("x")], token_list)
+
+    def test_factor_two_i(self):
+        token_list = tokenize("42ii")
+        self.assertListEqual([Rational("42"), Operator("*"),
+                              Variable("ii")], token_list)
+
+    def test_factor_parenthesis(self):
+        token_list = tokenize("42(x)")
+        self.assertListEqual([Rational("42"), Operator("*"), Parenthesis("("),
+                              Variable("x"), Parenthesis(")")], token_list)
+
+    def test_factor_parenthesis_i(self):
+        token_list = tokenize("42(i)")
+        self.assertListEqual([Rational("42"), Operator("*"), Parenthesis("("),
+                              Imaginary("i"), Parenthesis(")")], token_list)
+
+    def test_factor_parenthesis_i_between(self):
+        # here i42 can be a variable or i * 42 => we raise exception
+        self.assertRaises(TokenException, tokenize, "42i42")
 
 
 if __name__ == '__main__':

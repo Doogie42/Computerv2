@@ -1,5 +1,5 @@
 from computorv2.Token import Token, Operator, Rational, Parenthesis
-from computorv2.Token import Imaginary, UnaryOperator
+from computorv2.Token import Imaginary, UnaryOperator, TokenType
 from computorv2.Expression import Expression, Literal, Factor, Term, Unary
 
 # term -> factor (- + ) factor
@@ -75,7 +75,7 @@ class Parser():
     def term(self) -> list[Expression]:
         left = self.factor()
         while self.match_list([Operator("+"), Operator("-")]):
-            operator = self.advance(Operator)
+            operator = self.advance(TokenType.OPERATOR)
             right = self.factor()
             left = Term(left, operator, right)
         return left
@@ -83,7 +83,7 @@ class Parser():
     def factor(self) -> list[Expression]:
         left = self.unary()
         while self.match_list([Operator("*"), Operator("/")]):
-            operator = self.advance(Operator)
+            operator = self.advance(TokenType.OPERATOR)
             right = self.unary()
             left = Factor(left, operator, right)
         return left
@@ -91,7 +91,7 @@ class Parser():
     def unary(self) -> Expression:
         left = self.literal()
         while self.match_list([UnaryOperator("^"), UnaryOperator("%")]):
-            unary_operator = self.advance(UnaryOperator)
+            unary_operator = self.advance(TokenType.UNARY_OPERATOR)
             # here we will do like python => right to left
             right = self.unary()
             left = Unary(left=left, unary=unary_operator, right=right)
