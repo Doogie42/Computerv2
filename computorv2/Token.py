@@ -21,6 +21,7 @@ class TokenType(enum.Enum):
     MATRIX = 6
     UNARY_OPERATOR = 7
     VARIABLE = 8
+    EQUAL = 9
 
 
 class TokenException(Exception):
@@ -197,9 +198,13 @@ class Imaginary(Number):
             return super().__repr__()
         else:
             sign = " + " if self.imaginary_expr >= 0 else " "
-            return f"{self.rational_expr:g}" + sign\
-                + f"{self.imaginary_expr:g}"\
-                + " * i"
+            s = ""
+            if self.rational_expr != 0:
+                s = f"{self.rational_expr:g}"
+                s += sign
+            if self.imaginary_expr != 0:
+                s += f"{self.imaginary_expr:g}" + " * i"
+            return s
 
     def __eq__(self, value: object) -> bool:
         diff_rat = abs(self.rational_expr - value.rational_expr)
@@ -234,6 +239,12 @@ class Matrix(Token):
     pass
 
 
+class Equal(Token):
+    def __init__(self, value: str = None) -> None:
+        super().__init__(value)
+        self.token_type = TokenType.EQUAL
+
+
 class UnaryOperator(Token):
     def __init__(self, value: str = None) -> None:
         super().__init__(value)
@@ -244,7 +255,6 @@ class UnaryOperator(Token):
 def add_mult_operator(token_list: list[Token]) -> list[Token]:
     new_token_list = []
     iterable = iter(token_list)
-    print(token_list)
     for token in iterable:
         new_token_list.append(token)
         try:
@@ -258,12 +268,6 @@ def add_mult_operator(token_list: list[Token]) -> list[Token]:
              next_token.get_value() == "("):
             new_token_list.append(Operator("*"))
 
-        if (token.get_type() == TokenType.VARIABLE or
-            token.get_value() == ")")\
-            and\
-            (next_token.get_type() == TokenType.RATIONAL or
-             next_token.get_type() == TokenType.IMAGINARY):
-            new_token_list.append(Operator("*"))
         new_token_list.append(next_token)
     return new_token_list
 
@@ -274,9 +278,10 @@ def tokenize(cmd: str) -> list[Token]:
          "\\b\\d*[i]\\b": Imaginary,  # capture whole
          "\\b\\d+(\\.\\d+)?": Rational,  # capture decimal
          "\\b(?!i\\b)[a-zA-Z]+\\b": Variable,
-         "[\\+\\-\\*\\/\\=]": Operator,
+         "[\\+\\-\\*\\/]": Operator,
          "\\(|\\)": Parenthesis,
-         "\\^|\\%": UnaryOperator
+         "\\^|\\%": UnaryOperator,
+         "=": Equal
     }
 
     token_list = []

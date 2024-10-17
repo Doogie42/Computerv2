@@ -1,6 +1,6 @@
 from computorv2.Token import tokenize, Rational, Imaginary, Variable, \
                                 Operator, Parenthesis, TokenException, \
-                                UnaryOperator
+                                UnaryOperator, Equal
 import unittest
 
 
@@ -101,7 +101,7 @@ class TestMixed(unittest.TestCase):
     def test_mixed(self):
         token_list = tokenize("4242 4242i variable = 42")
         self.assertListEqual([Rational("4242"), Imaginary("4242i"),
-                              Variable("variable"), Operator("="),
+                              Variable("variable"), Equal("="),
                               Rational("42")], token_list)
 
     def test_mixed_with_bad_char(self):
