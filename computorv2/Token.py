@@ -206,6 +206,10 @@ class Imaginary(Number):
                 s += f"{self.imaginary_expr:g}" + " * i"
             return s
 
+    def __repr__(self) -> str:
+        return "Imaginary Token" +\
+                f"rational {self.rational_expr} imag {self.imaginary_expr}"
+
     def __eq__(self, value: object) -> bool:
         diff_rat = abs(self.rational_expr - value.rational_expr)
         diff_imag = abs(self.imaginary_expr - value.imaginary_expr)

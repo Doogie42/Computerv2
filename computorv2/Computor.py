@@ -1,4 +1,5 @@
-from computorv2.Token import tokenize, TokenException, TokenType, Token
+from computorv2.Token import tokenize, TokenException, TokenType, \
+                             Token, Parenthesis
 from computorv2.Parser import Parser, ParserException
 from computorv2.Interpreter import Interpreter
 from computorv2.Expression import InterpretException
@@ -36,15 +37,20 @@ class Computor():
                 return b.execute(self)
         return ""
 
-    def replace_variable(self, token_list):
+    def replace_variable(self, token_list: list[Token]) -> list[Token]:
+        new_token_list = []
         for i in range(len(token_list)):
             if token_list[i].get_type() == TokenType.VARIABLE:
                 var_name = token_list[i].get_value()
                 if var_name in self.variable_dict:
-                    token_list[i] = self.variable_dict[var_name]
+                    new_token_list.append(Parenthesis("("))
+                    new_token_list.append(self.variable_dict[var_name])
+                    new_token_list.append(Parenthesis(")"))
                 else:
                     raise InterpretException(f"Unknown variable {var_name}")
-        return token_list
+            else:
+                new_token_list.append(token_list[i])
+        return new_token_list
 
     def run_cmd(self, cmd: str) -> str:
         ret = self.run_builtin_cmd(cmd)
@@ -64,6 +70,7 @@ class Computor():
             else:
                 raise ParserException("Unknown equality")
             token_list_to_parse = self.replace_variable(token_list_to_parse)
+
             parser = Parser(token_list_to_parse)
             ast = parser.generate()
             interpreter = Interpreter(ast)
@@ -83,4 +90,4 @@ class Computor():
         #     print(f"ERROR FATAL: unhandled exception got {e}")
         #     print("Quitting")
         #     exit(1)
-        return result
+        return str(result)

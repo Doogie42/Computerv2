@@ -9,7 +9,7 @@ def main():
         if cmd == "exit":
             break
         result = computor.run_cmd(cmd)
-        print(f"{result}")
+        print(result)
 
 
 if __name__ == "__main__":

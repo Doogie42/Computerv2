@@ -50,3 +50,12 @@ class TestAssignement(unittest.TestCase):
             "b": Imaginary(rational=4, imaginary=2),
             "c": Imaginary(rational=8, imaginary=2)
             })
+
+    def test_precedence(self):
+        computor = self.my_set_up("a = 2 + i")
+        computor.run_cmd("b = a ^ 2")
+        variable_dict = computor.get_variable_dict()
+        self.assertDictEqual(variable_dict, {
+            "a": Imaginary(rational=2, imaginary=1),
+            "b": Imaginary(rational=3, imaginary=4)
+            })
