@@ -82,7 +82,7 @@ class Parser():
 
     def factor(self) -> list[Expression]:
         left = self.unary()
-        while self.match_list([Operator("*"), Operator("/")]):
+        while self.match_list([Operator("*"), Operator("/"), Operator("%")]):
             operator = self.advance(TokenType.OPERATOR)
             right = self.unary()
             left = Factor(left, operator, right)
@@ -90,7 +90,7 @@ class Parser():
 
     def unary(self) -> Expression:
         left = self.literal()
-        while self.match_list([UnaryOperator("^"), UnaryOperator("%")]):
+        while self.match_list([UnaryOperator("^")]):
             unary_operator = self.advance(TokenType.UNARY_OPERATOR)
             # here we will do like python => right to left
             right = self.unary()

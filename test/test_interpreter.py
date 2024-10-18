@@ -207,6 +207,11 @@ class TestInterpreterMod(unittest.TestCase):
         self.assertEqual(Rational(result),
                          interpreter.interpret_ret_token())
 
+    def test_multiple_mod(self):
+        interpreter, result = self.my_set_up("5 % 2 % 3")
+        self.assertEqual(Rational(result),
+                         interpreter.interpret_ret_token())
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -99,6 +99,8 @@ class Binary(Expression):
                 return self.left - self.right
             case Operator(value="*"):
                 return self.left * self.right
+            case Operator(value="%"):
+                return self.left % self.right
             case Operator(value="/"):
                 try:
                     return self.left / self.right

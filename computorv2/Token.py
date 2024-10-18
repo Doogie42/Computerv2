@@ -282,9 +282,9 @@ def tokenize(cmd: str) -> list[Token]:
          "\\b\\d*[i]\\b": Imaginary,  # capture whole
          "\\b\\d+(\\.\\d+)?": Rational,  # capture decimal
          "\\b(?!i\\b)[a-zA-Z]+\\b": Variable,
-         "[\\+\\-\\*\\/]": Operator,
+         "[\\+\\-\\*\\/\\%]": Operator,
          "\\(|\\)": Parenthesis,
-         "\\^|\\%": UnaryOperator,
+         "\\^": UnaryOperator,
          "=": Equal
     }
 
