@@ -58,6 +58,8 @@ class Computor():
             return ret
         try:
             token_list = tokenize(cmd)
+            # print(token_list)
+            # return "YO"
             self.split_token_equal(token_list)
             # No = => we interpret as whole expression
             token_list_to_parse = []

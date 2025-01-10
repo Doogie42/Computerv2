@@ -278,6 +278,9 @@ def add_mult_operator(token_list: list[Token]) -> list[Token]:
 
 def tokenize(cmd: str) -> list[Token]:
     rules = {
+        #  "\\b[a-zA-Z]\\(.*\\)": Function,
+         "\\b[a-zA-Z]*\\([^\)]*\\)": Function,
+        #  \b[a-zA-Z]*\([^\)]*
          "\\b\\d+\\.\\d+[i]\\b": Imaginary,  # capture decimal
          "\\b\\d*[i]\\b": Imaginary,  # capture whole
          "\\b\\d+(\\.\\d+)?": Rational,  # capture decimal
@@ -285,7 +288,7 @@ def tokenize(cmd: str) -> list[Token]:
          "[\\+\\-\\*\\/\\%]": Operator,
          "\\(|\\)": Parenthesis,
          "\\^": UnaryOperator,
-         "=": Equal
+         "=": Equal,
     }
 
     token_list = []

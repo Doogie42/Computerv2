@@ -1,6 +1,6 @@
 from computorv2.Token import tokenize, Rational, Imaginary, Variable, \
                                 Operator, Parenthesis, TokenException, \
-                                UnaryOperator, Equal
+                                UnaryOperator, Equal, Function
 import unittest
 
 
@@ -143,6 +143,14 @@ class TestMixed(unittest.TestCase):
         # here i42 can be a variable or i * 42 => we raise exception
         self.assertRaises(TokenException, tokenize, "42i42")
 
+    def test_function(self):
+        token_list = tokenize("f(x) = 2")
+        self.assertListEqual([Function("f(x)"), Equal("="), Rational("2"),
+                              ], token_list)
 
+    def test_two_function(self):
+        token_list = tokenize("f(x) + g(x)= 2")
+        self.assertListEqual([Function("f(x)"), Operator("+"), Function("g(x)"),
+                                Equal("="), Rational("2")], token_list)
 if __name__ == '__main__':
     unittest.main()

@@ -29,3 +29,12 @@ class ListVariable(BuiltinCmd):
             s += f"{name} = {variable}\n"
         s += "*****************************"
         return s
+
+
+class test(BuiltinCmd):
+    def __init__(self) -> None:
+        super().__init__()
+        self.short_name = "hello"
+
+    def execute(self, computor) -> str:
+        return "hello"

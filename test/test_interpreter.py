@@ -212,6 +212,11 @@ class TestInterpreterMod(unittest.TestCase):
         self.assertEqual(Rational(result),
                          interpreter.interpret_ret_token())
 
+    def test_precedence(self):
+        interpreter, result = self.my_set_up("5 % 2 * 2")
+        self.assertEqual(Rational(result),
+                         interpreter.interpret_ret_token())
+
 
 if __name__ == '__main__':
     unittest.main()
